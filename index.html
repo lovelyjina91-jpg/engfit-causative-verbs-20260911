@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사역동사 | 영핏영어</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--bg:#F4F6F8;--ink:#0F172A;--sub:#475569;--line:#CBD5E1;--green:#157A3A;--gold:#B45309;--navy:#1B2970;--red:#B91C1C}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:'Pretendard','Pretendard Variable','Noto Sans CJK KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;user-select:none}
+body.nocursor{cursor:none}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg);overflow:hidden}
+.slide{position:absolute;inset:0;padding:150px 120px 110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:44px;opacity:0;visibility:hidden;transition:opacity .45s ease,visibility 0s linear .45s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .45s ease}
+.hd{position:absolute;top:44px;left:120px;right:120px;display:flex;justify-content:space-between;align-items:center}
+.sec{font-size:32px;font-weight:800;color:#fff;background:var(--navy);padding:10px 28px;border-radius:999px}
+.logo{display:flex;align-items:baseline;gap:12px}
+.logo b{font-size:32px;font-weight:900;color:var(--navy);letter-spacing:-.5px}
+.logo span{font-size:18px;font-weight:700;color:var(--sub);letter-spacing:3px}
+#bar{position:absolute;left:0;bottom:0;height:10px;width:100%;background:#E2E8F0}
+#bar i{display:block;height:100%;width:0;background:var(--navy);transition:width .45s ease}
+#cnt{position:absolute;right:40px;bottom:24px;font-size:22px;font-weight:700;color:#94A3B8}
+#hint{position:absolute;right:40px;bottom:60px;font-size:26px;font-weight:700;background:#fff;color:var(--navy);border:3px solid var(--navy);padding:12px 24px;border-radius:999px;transition:opacity .6s}
+#hint.hide{opacity:0}
+
+/* reveal */
+.fx{opacity:0;transform:translateY(18px);transition:opacity .45s ease,transform .45s ease}
+.fx.on{opacity:1;transform:none}
+.delay.on{transition-delay:2.2s}
+.delay-out:not(.on){transition-delay:2.2s}
+.stack{display:grid;justify-items:center;align-items:center}
+.stack>*{grid-area:1/1}
+
+/* roles */
+.r-s{--c:#1D4ED8;--t:#DBEAFE}
+.r-v{--c:#157A3A;--t:#DCFCE7}
+.r-o{--c:#B45309;--t:#FEF3C7}
+.r-b{--c:#6D28D9;--t:#EDE9FE}
+.r-ing{--c:#BE185D;--t:#FCE7F3}
+.r-pp{--c:#0F766E;--t:#CCFBF1}
+.r-x{--c:#334155;--t:#E2E8F0}
+.r-to{--c:#B91C1C;--t:#FEE2E2}
+.cards.c3{grid-template-columns:repeat(3,1fr)}
+.cards.c3 .en{font-size:64px}
+.cards.c3 .ko{font-size:42px;color:var(--ink)}
+.cards.c3 .tg{font-size:32px;font-weight:800;color:var(--c);background:var(--t);padding:4px 20px;border-radius:999px}
+.t-pair{gap:24px}
+.t-pair .prows{gap:26px}
+.t-pair .prow{gap:8px}
+.t-pair .prow .k{font-size:44px}
+.t-pair .prow .e{font-size:58px}
+.t-pair .rule{padding:18px 40px;font-size:40px}
+.t-pair .o-small{font-size:36px}
+.cc .big{font-size:80px;font-weight:900;color:var(--c)}
+.cc .or{font-size:34px;font-weight:700;color:var(--sub)}
+
+.chunks{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:26px 24px;transition:filter .5s}
+.chunk{display:inline-flex;flex-direction:column;align-items:center;gap:10px}
+.chunk .lab{font-size:30px;font-weight:800;color:var(--c)}
+.chunk .w{font-size:var(--cw,76px);font-weight:800;color:var(--c);background:var(--t);border:4px solid var(--c);border-radius:22px;padding:4px 30px 10px;line-height:1.15;white-space:nowrap;transition:box-shadow .4s,transform .4s}
+.chunk.cur .w{box-shadow:0 0 0 10px color-mix(in srgb,var(--c) 22%,transparent);transform:scale(1.05)}
+.chunks .dot{font-size:var(--cw,76px);font-weight:800;color:var(--ink);align-self:flex-end;padding-bottom:10px;margin-left:-14px}
+.done-badge{font-size:40px;font-weight:800;color:var(--green)}
+
+.kr{font-size:60px;font-weight:700;line-height:1.35;text-align:center}
+.kr .note{font-size:40px;color:var(--sub);font-weight:600;margin-left:14px}
+.kp{padding:0 8px;border-radius:12px;transition:color .4s,background .4s,box-shadow .4s}
+.kp.lit{color:var(--c);background:var(--t);box-shadow:inset 0 -6px 0 var(--c)}
+.prompt{font-size:34px;font-weight:700;color:var(--sub)}
+
+.tip{font-size:42px;font-weight:600;background:#fff;border:3px solid var(--line);border-radius:26px;padding:22px 44px;box-shadow:0 10px 30px rgba(15,23,42,.07);text-align:center;line-height:1.4;position:relative}
+.tip b{color:var(--navy);font-weight:800}
+.tip em{font-style:normal;font-weight:800;color:var(--green)}
+.tip .no{color:var(--red);font-weight:800}
+.tip.final{border-color:var(--green);background:#F0FDF4}
+
+.ck{color:var(--c);background:var(--t);border-radius:14px;padding:0 14px 4px;margin:0 3px;font-weight:800;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+
+/* title */
+.t-kick{font-size:40px;font-weight:700;color:var(--sub);letter-spacing:2px}
+.t-main{font-size:210px;font-weight:900;color:var(--navy);letter-spacing:-6px;line-height:1}
+.t-sub{font-size:64px;font-weight:700}
+.t-emo{font-size:110px;letter-spacing:30px}
+
+/* concept */
+.headline{font-size:78px;font-weight:800;text-align:center;line-height:1.25}
+.headline b{color:var(--green)}
+.subline{font-size:48px;font-weight:600;color:var(--sub);text-align:center}
+.subline b{color:var(--gold);font-weight:800}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:28px;width:100%}
+.card{background:#fff;border:3px solid var(--line);border-radius:30px;padding:34px 16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.card .e{font-size:92px;line-height:1}
+.card .en{font-size:50px;font-weight:800;color:var(--green);text-align:center;line-height:1.15}
+.card .ko{font-size:40px;font-weight:700;color:var(--sub)}
+
+/* merge */
+.t-merge{gap:32px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:30px;width:100%;margin-top:10px}
+.mcard{background:#fff;border:3px solid var(--line);border-radius:28px;padding:20px 24px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.mcard .k{font-size:46px;font-weight:700;color:var(--sub)}
+.mcard .e{font-size:50px;font-weight:800;white-space:nowrap}
+.hl{padding:0 8px;border-radius:10px;transition:background .4s,color .4s}
+.hl.lit{color:var(--c);background:var(--t)}
+.arrow{font-size:52px;font-weight:800;color:var(--navy)}
+.result{background:#fff;border:4px solid var(--navy);border-radius:32px;padding:30px 50px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.result .k{font-size:54px;font-weight:700}
+.result .e{font-size:64px;font-weight:800}
+
+/* skeleton */
+.fgrid{display:grid;grid-template-columns:repeat(7,auto);justify-content:center;align-items:center;column-gap:22px;row-gap:46px}
+.fbox{position:relative;min-width:310px;background:var(--t);border:5px solid var(--c);border-radius:28px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.fbox .n{font-size:66px;font-weight:900;color:var(--c)}
+.fbox .h{font-size:32px;font-weight:700;color:var(--ink)}
+.plus{font-size:64px;font-weight:800;color:#94A3B8}
+.stamp{position:absolute;top:-38px;right:-30px;background:var(--red);color:#fff;font-size:40px;font-weight:900;padding:8px 22px;border-radius:18px;transform:rotate(8deg);box-shadow:0 8px 20px rgba(185,28,28,.3)}
+.stamp.fx{transform:rotate(8deg) translateY(18px)}
+.stamp.fx.on{transform:rotate(8deg)}
+.fex{justify-self:center}
+.fex .w{font-size:66px}
+
+/* trap */
+.trows{display:flex;flex-direction:column;gap:40px;width:100%}
+.trow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:26px}
+.tc{border-radius:26px;padding:24px 30px;font-size:56px;font-weight:800;text-align:center;border:4px solid}
+.tc.bad{background:#FEF2F2;border-color:#FCA5A5;color:#7F1D1D}
+.tc.good{background:#F0FDF4;border-color:var(--green);color:#14532D}
+.tc .x{color:var(--red);text-decoration:line-through;text-decoration-thickness:6px}
+.tc .ok{color:var(--green);text-decoration:underline;text-decoration-thickness:6px;text-underline-offset:10px}
+.tarrow{font-size:60px;color:#94A3B8;font-weight:800}
+.twhy{grid-column:1/-1;font-size:38px;font-weight:700;color:var(--sub);text-align:center;margin-top:-12px}
+.twhy b{color:var(--red)}
+.memo{background:#FFF7ED;border:5px solid var(--gold);border-radius:30px;padding:26px 56px;font-size:60px;font-weight:900;text-align:center;line-height:1.3}
+.memo b{color:var(--gold)}
+.memo .small{display:block;font-size:36px;font-weight:700;color:var(--sub);margin-top:6px}
+
+/* blank */
+.bsent{font-size:76px;font-weight:800;display:flex;align-items:center;gap:26px;flex-wrap:wrap;justify-content:center}
+.blank{display:inline-grid;min-width:300px;border-bottom:8px dashed var(--navy);padding:0 20px;justify-items:center}
+.blank>*{grid-area:1/1}
+.blank .q{color:#94A3B8}
+.blank .a{color:#6D28D9}
+.opts{display:flex;gap:30px}
+.opt{font-size:54px;font-weight:800;background:#fff;border:4px solid var(--line);border-radius:22px;padding:14px 40px;transition:all .45s ease}
+.opt i{font-style:normal;color:var(--sub);margin-right:14px;font-size:44px}
+.opt.good.lit{background:#DCFCE7;border-color:var(--green);color:var(--green);transform:scale(1.08)}
+.opt.bad.lit{opacity:.35;text-decoration:line-through}
+.opt.delay.lit{transition-delay:2.2s}
+.think{display:flex;align-items:center;gap:24px;font-size:40px;font-weight:700;color:var(--navy)}
+.think .track{width:520px;height:16px;border-radius:99px;background:#E2E8F0;overflow:hidden}
+.think .fill{height:100%;width:0;background:var(--navy);border-radius:99px;transition:width 0s}
+.think.on .fill{width:100%;transition:width 2.2s linear}
+
+/* compare */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:40px;width:100%}
+.cc{background:#fff;border:4px solid var(--c);border-radius:32px;padding:34px 36px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.cc .s{font-size:46px;font-weight:800}
+.cc .tag{font-size:40px;font-weight:900;color:var(--c);background:var(--t);padding:6px 26px;border-radius:999px}
+.cc .d{font-size:42px;font-weight:700;text-align:center}
+.track2{position:relative;width:640px;height:150px}
+.track2 .line{position:absolute;left:30px;right:30px;top:100px;height:14px;background:#E2E8F0;border-radius:99px;overflow:hidden}
+.track2 .fill{height:100%;width:0;background:var(--c);transition:width 1.8s ease-in-out}
+.track2.lit .fill{width:100%}
+.track2 .walker{position:absolute;top:18px;left:0;font-size:70px;transition:left 1.8s ease-in-out}
+.track2.lit .walker{left:560px}
+.track2 .lb{position:absolute;top:122px;font-size:28px;font-weight:700;color:var(--sub)}
+.track2 .frame{position:absolute;left:220px;top:0;width:200px;height:140px;border:6px solid var(--c);border-radius:18px;opacity:0;transition:opacity .5s}
+.track2.lit .frame{opacity:1}
+.track2 .walker.mid{left:285px}
+.cnote{font-size:44px;font-weight:700;text-align:center;line-height:1.4}
+.cnote b{color:var(--green)}
+
+/* pair */
+.prows{display:flex;flex-direction:column;gap:46px;width:100%;align-items:center}
+.prow{display:flex;flex-direction:column;align-items:center;gap:14px}
+.prow .k{font-size:50px;font-weight:700}
+.prow .e{font-size:66px;font-weight:800}
+.prow .why{font-size:38px;font-weight:700;color:var(--sub)}
+.prow .why b{color:var(--c)}
+.rule{display:grid;grid-template-columns:auto auto;gap:14px 30px;background:#fff;border:4px solid var(--navy);border-radius:28px;padding:26px 46px;font-size:44px;font-weight:700}
+.rule .ck{font-size:44px}
+
+/* drill */
+.dwrap{width:100%;height:560px}
+.ditem{display:flex;flex-direction:column;align-items:center;gap:50px;width:100%}
+.dnum{font-size:32px;font-weight:800;color:var(--navy);background:#E0E7FF;padding:6px 24px;border-radius:999px}
+.dkr{font-size:66px;font-weight:700;text-align:center;line-height:1.3}
+.dkr .note{display:block;font-size:40px;color:var(--sub);font-weight:600;margin-top:8px}
+.den{font-size:76px;font-weight:800;text-align:center;line-height:1.55;max-width:1680px}
+.legend{display:flex;gap:28px;font-size:30px;font-weight:700}
+.legend span{display:flex;align-items:center;gap:10px;color:var(--c)}
+.legend span:before{content:'';width:26px;height:26px;border-radius:8px;background:var(--t);border:3px solid var(--c)}
+
+/* outro */
+.o-kick{font-size:52px;font-weight:800;color:var(--sub)}
+.o-form{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center}
+.o-form .ck{font-size:66px;padding:6px 26px 12px}
+.o-form .plus{font-size:56px}
+.o-small{font-size:42px;font-weight:700;color:var(--sub);text-align:center;line-height:1.5}
+.o-small .ck{font-size:40px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="slides"></div>
+  <div id="bar"><i></i></div>
+  <div id="cnt"></div>
+  <div id="hint">클릭 · 스페이스 = 다음 ▶ &nbsp;|&nbsp; ← 이전</div>
+</div>
+<script>
+/* ---------- helpers ---------- */
+const R={s:'주어',v:'지각동사',o:'목적어',b:'동사원형',ing:'-ing',pp:'p.p.',x:''};
+const fx=(from,to,extra='')=>`class="fx ${extra}"${from!=null?` data-from="${from}"`:''}${to!=null?` data-to="${to}"`:''}`;
+const ck=(t,r)=>`<span class="ck r-${r}">${t}</span>`;
+const hd=sec=>`<div class="hd"><div class="sec">${sec}</div><div class="logo"><b>영핏영어</b><span>YOUNG FIT</span></div></div>`;
+const sent=arr=>arr.map(([t,r])=>r?ck(t,r):t).join(' ');
+
+/* ---------- slide data ---------- */
+const S=[
+{type:'title'},
+{type:'concept',sec:'① 사역동사가 뭐야?'},
+{type:'merge',sec:'① 왜 필요할까?'},
+{type:'skeleton',sec:'② 문장 뼈대'},
+
+{type:'build',sec:'③ 조립 시연 1 : make',note:'(주말인데… 🧹)',
+ kr:[['엄마가',0],['나한테',2],['내 방을',4],['억지로 청소하게',3],['하셨다.',1]],
+ ch:[['Mom','s','주어','<b>누가 시켰어?</b> → 엄마 = <em>Mom</em>'],
+     ['made','v','사역동사','<b>억지로</b> 시켰다 → <em>made</em> &nbsp;📢 싫어도 하게 만드는 make!'],
+     ['me','o','목적어','<b>누구한테?</b> → 나 = <em>me</em> &nbsp;(<span class="no">I</span> ❌)'],
+     ['clean','b','동사원형','<b>뭐 하게?</b> → 청소하게 = <em>clean</em> &nbsp;(<span class="no">to</span> 없이 원형!)'],
+     ['my room','x','무엇을','<b>뭘 청소해?</b> → 내 방 = <em>my room</em>']],
+ fin:'영어 순서 = <b>누가 → 시켰다 → 누구한테 → 뭐 하게</b>'},
+
+{type:'build',sec:'③ 조립 시연 2 : have',note:'(당번이라서… 🧽)',
+ kr:[['선생님이',0],['나한테',2],['칠판을',4],['지우게',3],['하셨다.',1]],
+ ch:[['The teacher','s','주어','<b>누가?</b> → 선생님 = <em>The teacher</em>'],
+     ['had','v','사역동사','<b>시키셨다</b> → <em>had</em> &nbsp;🙏 make보다 부드럽게 시키는 have'],
+     ['me','o','목적어','<b>누구한테?</b> → 나 = <em>me</em>'],
+     ['erase','b','동사원형','<b>뭐 하게?</b> → 지우게 = <em>erase</em> &nbsp;(<span class="no">to</span> ❌)'],
+     ['the board','x','무엇을','<b>뭘 지워?</b> → 칠판 = <em>the board</em>']],
+ fin:'made → <b>had</b>로 바뀌었을 뿐, <b>틀은 똑같지?</b>'},
+
+{type:'build',sec:'③ 조립 시연 3 : let',note:'(시험 끝났으니까! 🎮)',
+ kr:[['엄마가',0],['내가',2],['게임을',4],['한 시간',4],['하게',3],['해주셨다.',1]],
+ ch:[['Mom','s','주어','<b>누가?</b> → 엄마 = <em>Mom</em>'],
+     ['let','v','사역동사','<b>허락해 주셨다</b> → <em>let</em> &nbsp;👌 과거형도 그대로 let!'],
+     ['me','o','목적어','<b>누구를?</b> → 나 = <em>me</em> &nbsp;(내가 → me)'],
+     ['play','b','동사원형','<b>뭐 하게?</b> → 하게 = <em>play</em> &nbsp;(<span class="no">to</span> ❌)'],
+     ['games for an hour','x','나머지','<b>뭘, 얼마나?</b> → 게임 한 시간 = <em>games for an hour</em>']],
+ fin:'make · have · let — <b>사역동사 + 목적어 + 동사원형</b> 완성!'},
+
+{type:'blank',sec:'④ 빈칸 도전 1',kr:'형이 나를 하루 종일 기다리게 만들었다. 😤',
+ pre:'My brother made me',post:'all day.',opts:['to wait','wait','waiting'],ans:1,
+ why:'<b>make</b> + me + <em>wait</em> &nbsp;→ <span class="no">to wait</span> ❌'},
+
+{type:'blank',sec:'④ 빈칸 도전 2',kr:'아빠가 내가 아빠 폰을 쓰게 해주셨다. 📱',
+ pre:'Dad let me',post:'his phone.',opts:['use','to use','used'],ans:0,
+ why:'<b>let</b> + me + <em>use</em> &nbsp;→ 허락해 줘도 원형!'},
+
+{type:'trap',sec:'⚠ 제일 많이 하는 실수'},
+
+{type:'gethelp',sec:'⑤ 헷갈리는 친구들 : get & help'},
+
+{type:'build',sec:'⑤ get 조립 시연',note:'(치킨 복수 🍜)',
+ kr:[['나는',0],['동생한테',2],['내 라면을',4],['끓이게',3],['시켰다.',1]],
+ ch:[['I','s','주어','<b>누가?</b> → 나는 = <em>I</em>'],
+     ['got','v','get','<b>시켰다</b> → <em>got</em> &nbsp;(뜻은 have랑 비슷)'],
+     ['my brother','o','목적어','<b>누구한테?</b> → 동생 = <em>my brother</em>'],
+     ['to cook','to','to 동사원형','get은 <b>가짜 사역동사!</b> → <em>to cook</em> &nbsp;(to 필요!)'],
+     ['my ramen','x','무엇을','<b>뭘 끓여?</b> → 내 라면 = <em>my ramen</em>']],
+ fin:'<b>get</b>만 특별히 <b>to</b>가 붙어!'},
+
+{type:'blank',sec:'⑤ 빈칸 도전 3',kr:'아빠가 나한테 설거지하게 시키셨다. 🍽',
+ pre:'Dad had me',post:'the dishes.',opts:['to wash','washed','wash'],ans:2,
+ why:'<b>have</b> + me + <em>wash</em> &nbsp;→ 진짜 사역동사니까 <span class="no">to</span> ❌'},
+
+{type:'pair',sec:'⑥ 보너스 : have + p.p.'},
+
+{type:'build',sec:'⑥ p.p. 조립 시연',note:'(= 수리 맡겼다 📱)',
+ kr:[['나는',0],['가게에서',4],['폰 액정이',2],['고쳐지게',3],['했다.',1]],
+ ch:[['I','s','주어','<b>누가?</b> → 나는 = <em>I</em>'],
+     ['had','v','사역동사','<b>맡겨서 하게 했다</b> → <em>had</em>'],
+     ['my phone screen','o','목적어','<b>뭐가?</b> → 폰 액정 = <em>my phone screen</em>'],
+     ['fixed','pp','p.p.','액정은 스스로 못 고치지! <b>고쳐지는</b> 거니까 → <em>fixed</em>'],
+     ['at the store','x','어디서','<b>어디서?</b> → 가게에서 = <em>at the store</em>']],
+ fin:'목적어가 <b>당하는</b> 거면 → <b>p.p.</b>'},
+
+{type:'blank',sec:'⑥ 빈칸 도전 4',kr:'나 미용실에서 머리 핑크로 염색했어. 💇',
+ pre:'I had my hair',post:'pink.',opts:['dye','dyed','to dye'],ans:1,
+ why:'머리는 스스로 염색 못 하지! <b>염색되는</b> 거니까 → <em>dyed</em> (p.p.)'},
+
+{type:'drill',sec:'⑦ 연속 드릴 — 입으로 따라 해봐! 🗣',items:[
+ ['선생님이 우리를 방과 후에 남게 하셨다.','😩',[['The teacher','s'],['made','v'],['us','o'],['stay','b'],['after school.','']]],
+ ['그 영화가 나를 펑펑 울게 만들었다.','😭',[['The movie','s'],['made','v'],['me','o'],['cry','b'],['a lot.','']]],
+ ['엄마가 내가 친구네서 자고 오게 해주셨다.','🛌',[['Mom','s'],['let','v'],['me','o'],['sleep over','b'],['at my friend\'s house.','']]],
+ ['코치님이 우리한테 운동장 10바퀴를 뛰게 하셨다.','🏃',[['The coach','s'],['had','v'],['us','o'],['run','b'],['10 laps.','']]],
+ ['제발 나 한 판만 더 하게 해줘!','🎮',[['Let','v'],['me','o'],['play','b'],['one more round, please!','']]],
+ ['나는 형한테 내 자전거를 고치게 했다.','🚲',[['I','s'],['got','v'],['my brother','o'],['to fix','to'],['my bike.','']]],
+ ['친구가 내 수학 숙제하는 걸 도와줬다.','✏️',[['My friend','s'],['helped','v'],['me','o'],['(to) do','b'],['my math homework.','']]],
+ ['나는 치킨을 집으로 배달시켰다.','🍗',[['I','s'],['had','v'],['the chicken','o'],['delivered','pp'],['home.','']]]
+]},
+
+{type:'outro',sec:'⑧ 오늘의 한 줄'}
+];
+
+/* ---------- renderers ---------- */
+function rTitle(){return `${hd('영핏영어 문법 영상')}
+ <div class="t-kick">남에게 뭘 시키는 말</div>
+ <div class="t-main">사역동사</div>
+ <div class="t-emo">📢🙏👌</div>
+ <div class="t-sub">make · have · let + <span style="color:#B45309">누가</span> + <span style="color:#6D28D9">뭐 하게</span></div>`}
+
+function rConcept(d){
+ const cards=[['📢','make','억지로 ~하게 만들다','강제','r-to'],['🙏','have','~하게 시키다','부탁·지시','r-o'],['👌','let','~하게 해주다','허락','r-v']];
+ return `${hd(d.sec)}
+ <div class="headline">사역동사 = <b>남에게 뭘 시키는</b> 동사</div>
+ <div class="cards c3">${cards.map((c,i)=>`<div ${fx(i+1,null,'card '+c[4])}><div class="e">${c[0]}</div><div class="en">${c[1]}</div><div class="ko">${c[2]}</div><div class="tg">${c[3]}</div></div>`).join('')}</div>
+ <div ${fx(4,null,'subline')}>👉 "<b>누구한테 뭐 하게</b>" 시켰다 / 해줬다 말할 때 써!</div>`}
+
+function rMerge(d){
+ return `${hd(d.sec)}
+ <div class="mgrid">
+  <div ${fx(1,null,'mcard')}><div class="k">엄마가 (억지로) 시켰다. 📢</div><div class="e">Mom made …</div></div>
+  <div ${fx(2,null,'mcard')}><div class="k">나는 내 방을 청소했다.</div><div class="e"><span class="hl r-o" data-lit="4">I</span> <span class="hl r-b" data-lit="4">cleaned</span> my room.</div></div>
+ </div>
+ <div ${fx(3,null,'arrow')}>⬇ 두 문장을 하나로 합체!</div>
+ <div ${fx(3,null,'result')}>
+  <div class="k">엄마가 나한테 내 방을 청소하게 했다. 🧹</div>
+  <div class="e">${sent([['Mom','s'],['made','v'],['me','o'],['clean','b'],['my room.','']])}</div>
+ </div>
+ <div class="stack"><div ${fx(4,null,'tip')}><b>I</b> → <em>me</em> (목적격) &nbsp;·&nbsp; <b>cleaned</b> → <em>clean</em> (동사원형)</div></div>`}
+
+function rSkeleton(d){
+ const box=(n,h,r,i)=>`<div ${fx(i,null,`fbox r-${r}`)}><div class="n">${n}</div><div class="h">${h}</div>${r==='b'?`<div ${fx(5,null,'stamp')}>to ❌</div>`:''}</div>`;
+ const ex=(t,r)=>`<div ${fx(6,null,`chunk fex r-${r}`)}><div class="w">${t}</div></div>`;
+ return `${hd(d.sec)}
+ <div class="prompt">사역동사 문장은 딱 이 모양!</div>
+ <div class="fgrid">
+  ${box('주어','누가','s',1)}<div ${fx(2,null,'plus')}>+</div>
+  ${box('사역동사','시켰다·해줬다','v',2)}<div ${fx(3,null,'plus')}>+</div>
+  ${box('목적어','누구한테','o',3)}<div ${fx(4,null,'plus')}>+</div>
+  ${box('동사원형','뭐 하게','b',4)}
+  ${ex('Mom','s')}<div></div>${ex('made','v')}<div></div>${ex('me','o')}<div></div>${ex('clean','b')}
+ </div>
+ <div class="stack">
+  <div ${fx(5,5,'tip')}>동사원형 앞에 <span class="no">to</span>를 붙이면 안 돼!</div>
+  <div ${fx(6,6,'tip')}>(my room 같은 나머지는 뒤에 붙이면 끝)</div>
+  <div ${fx(7,null,'tip final')}>어? <b>지각동사</b>랑 모양이 똑같네! 👀 → 자리만 기억하면 끝</div>
+ </div>`}
+
+function rTrap(d){
+ return `${hd(d.sec)}
+ <div class="trows">
+  <div class="trow">
+   <div ${fx(1,null,'tc bad')}>❌ She made me <span class="x">to</span> cry.</div>
+   <div ${fx(2,null,'tarrow')}>➜</div>
+   <div ${fx(2,null,'tc good')}>✅ She made me <span class="ok">cry</span>.</div>
+   <div ${fx(2,null,'twhy')}>사역동사 뒤에도 <b>to</b>는 절대 안 와!</div>
+  </div>
+  <div class="trow">
+   <div ${fx(3,null,'tc bad')}>❌ Mom let <span class="x">I</span> go out.</div>
+   <div ${fx(4,null,'tarrow')}>➜</div>
+   <div ${fx(4,null,'tc good')}>✅ Mom let <span class="ok">me</span> go out.</div>
+   <div ${fx(4,null,'twhy')}>목적어 자리니까 <b>I</b> → me (목적격)</div>
+  </div>
+ </div>
+ <div ${fx(5,null,'memo')}>시키면 <b>바로</b> 해야지! <b>to</b> 붙일 시간 없음 ⚡<span class="small">→ make · have · let 뒤엔 to 없이 동사원형</span></div>`}
+
+function rGetHelp(d){
+ return `${hd(d.sec)}
+ <div class="prompt">뜻은 비슷한데 규칙이 달라! 이 둘만 조심</div>
+ <div class="cmp">
+  <div ${fx(1,null,'cc r-to')}>
+   <div class="big">get</div>
+   <div class="tag">to 꼭 필요!</div>
+   <div class="s">I got him ${ck('to clean','to')} the room.</div>
+   <div ${fx(2,null,'d')}>뜻은 have랑 비슷하지만 → <b>get + 목적어 + to 동사원형</b></div>
+  </div>
+  <div ${fx(3,null,'cc r-v')}>
+   <div class="big">help</div>
+   <div class="tag">원형 · to 둘 다 OK</div>
+   <div class="s">I helped Mom ${ck('cook','b')} dinner.</div>
+   <div class="or">= I helped Mom ${ck('to cook','to')} dinner.</div>
+   <div ${fx(4,null,'d')}>help는 <b>둘 다 정답!</b></div>
+  </div>
+ </div>
+ <div ${fx(5,null,'cnote')}>진짜 사역동사 <b>make · have · let</b> 만 → <b>to 절대 ❌</b></div>`}
+
+function rPair(d){
+ return `${hd(d.sec)}
+ <div class="prows">
+  <div class="prow">
+   <div ${fx(1,null,'k')}>나는 동생한테 내 방을 <u>청소하게</u> 했다.</div>
+   <div ${fx(2,null,'e')}>I had ${ck('my brother','o')} ${ck('clean','b')} my room.</div>
+   <div ${fx(2,null,'why r-b')}>동생이 <b>직접</b> 청소함 → <b>원형</b></div>
+  </div>
+  <div class="prow">
+   <div ${fx(3,null,'k')}>나는 (미용실에서) 머리를 <u>잘랐다</u>. ✂️</div>
+   <div ${fx(4,null,'e')}>I had ${ck('my hair','o')} ${ck('cut','pp')}.</div>
+   <div ${fx(4,null,'why r-pp')}>머리는 <b>잘리는(당하는)</b> 거 → <b>p.p.</b> &nbsp;(cut의 p.p.도 cut)</div>
+  </div>
+ </div>
+ <div ${fx(5,null,'rule')}>
+  <div>목적어가 <b>직접 하면</b></div><div>→ ${ck('동사원형','b')}</div>
+  <div>목적어가 <b>당하면</b></div><div>→ ${ck('p.p.','pp')}</div>
+ </div>
+ <div ${fx(6,null,'o-small')}>💡 I cut my hair. = 내가 <b>직접</b> 가위로 자름 😱</div>`}
+
+function rDrill(d){
+ const N=d.items.length;
+ const items=d.items.map((it,i)=>{const a=2*i+1,b=2*i+2,last=(i===N-1)?null:b;
+  return `<div ${fx(a,last,'ditem')}>
+   <div class="dnum">${i+1} / ${N}</div>
+   <div class="dkr">${it[0]} ${it[1]}</div>
+   <div ${fx(b,null,'den')}>${sent(it[2])}</div>
+  </div>`}).join('');
+ return `${hd(d.sec)}
+ <div class="stack dwrap">
+  <div ${fx(0,0,'ditem')}><div class="dkr">한글을 보면 <b style="color:#1B2970">먼저 입으로</b> 영작해 보고,<span class="note">클릭하면 정답이 나와!</span></div></div>
+  ${items}
+ </div>
+ <div class="legend"><span class="r-s">주어</span><span class="r-v">사역동사</span><span class="r-o">목적어</span><span class="r-b">동사원형</span><span class="r-to">to 동사원형</span><span class="r-pp">p.p.</span></div>`}
+
+function rOutro(d){
+ return `${hd(d.sec)}
+ <div class="o-kick">오늘은 이거 하나만 기억해!</div>
+ <div ${fx(1,null,'o-form')}>${ck('make · have · let','v')}<span class="plus">+</span>${ck('누구한테','o')}<span class="plus">+</span>${ck('to 없이 동사원형','b')}</div>
+ <div ${fx(2,null,'memo')}>시키면 <b>바로</b>! <b>to</b> 붙일 시간 없음 ⚡</div>
+ <div ${fx(3,null,'o-small')}>get은 ${ck('to','to')} &nbsp;·&nbsp; help는 ${ck('둘 다','b')} &nbsp;·&nbsp; 당하면 ${ck('p.p.','pp')}</div>`}
+
+function rBuild(d){
+ const n=d.ch.length;
+ const kr=d.kr.map(([t,ref])=>`<span class="kp r-${d.ch[ref][1]}" data-lit="${ref+1}">${t}</span>`).join(' ');
+ const chunks=d.ch.map((c,i)=>`<div ${fx(i+1,null,`chunk r-${c[1]}`)} data-cur="${i+1}"><div class="lab">${c[2]}</div><div class="w">${c[0]}</div></div>`).join('')+`<div ${fx(n+1,null,'dot')}>.</div>`;
+ const tips=d.ch.map((c,i)=>`<div ${fx(i+1,i+1,'tip')}>${c[3]}</div>`).join('')+`<div ${fx(0,0,'prompt')}>한글 뜻 먼저 보고, 영어로 하나씩 조립해 보자 👇</div><div ${fx(n+1,null,'tip final')}>✔ ${d.fin}</div>`;
+ return `${hd(d.sec)}
+ <div class="kr">${kr}<span class="note">${d.note||''}</span></div>
+ <div class="chunks">${chunks}</div>
+ <div class="stack" style="min-height:120px">${tips}</div>`}
+
+function rBlank(d){
+ const opts=d.opts.map((o,i)=>`<div class="opt delay ${i===d.ans?'good':'bad'}" data-lit="2"><i>${'①②③④'[i]}</i>${o}</div>`).join('');
+ return `${hd(d.sec)}
+ <div class="kr">${d.kr}</div>
+ <div class="bsent"><span>${d.pre}</span><span class="blank"><span ${fx(null,1,'q delay-out')}>?</span><span ${fx(2,null,'a delay')}>${d.opts[d.ans]}</span></span><span>${d.post}</span></div>
+ <div ${fx(1,null,'opts')}>${opts}</div>
+ <div class="stack" style="min-height:110px">
+  <div ${fx(0,0,'prompt')}>빈칸에 뭐가 들어갈까? 🤔</div>
+  <div ${fx(2,2,'think')}>🤔 생각해 봐! <div class="track"><div class="fill"></div></div></div>
+  <div ${fx(3,null,'tip final')}>${d.why}</div>
+ </div>`}
+
+const RENDER={title:rTitle,concept:rConcept,merge:rMerge,skeleton:rSkeleton,build:rBuild,blank:rBlank,trap:rTrap,gethelp:rGetHelp,pair:rPair,drill:rDrill,outro:rOutro};
+
+/* ---------- engine ---------- */
+const wrap=document.getElementById('slides');
+wrap.innerHTML=S.map(d=>`<section class="slide t-${d.type}">${RENDER[d.type](d)}</section>`).join('');
+const slides=[...wrap.children];
+const maxes=slides.map(s=>{let m=0;s.querySelectorAll('[data-from],[data-to],[data-lit],[data-cur]').forEach(e=>{['from','to','lit','cur'].forEach(k=>{if(e.dataset[k]!=null)m=Math.max(m,+e.dataset[k])})});return m});
+let si=0,st=0;
+const h=parseInt((location.hash||'').slice(1));if(h>0&&h<=slides.length)si=h-1;
+
+function apply(){
+ slides.forEach((s,i)=>s.classList.toggle('active',i===si));
+ const s=slides[si];
+ s.querySelectorAll('[data-from],[data-to]').forEach(e=>{const f=e.dataset.from!=null?+e.dataset.from:-1,t=e.dataset.to!=null?+e.dataset.to:1e9;e.classList.toggle('on',st>=f&&st<=t)});
+ s.querySelectorAll('[data-lit]').forEach(e=>e.classList.toggle('lit',st>=+e.dataset.lit));
+ s.querySelectorAll('[data-cur]').forEach(e=>e.classList.toggle('cur',st===+e.dataset.cur));
+ const total=maxes.reduce((a,b)=>a+b+1,0),done=maxes.slice(0,si).reduce((a,b)=>a+b+1,0)+st+1;
+ document.querySelector('#bar i').style.width=(done/total*100)+'%';
+ document.getElementById('cnt').textContent=`${si+1} / ${slides.length}`;
+ history.replaceState(null,'','#'+(si+1));
+}
+function next(){if(st<maxes[si])st++;else if(si<slides.length-1){si++;st=0}apply()}
+function prev(){if(st>0)st--;else if(si>0){si--;st=maxes[si]}apply()}
+document.addEventListener('click',e=>{if(e.target.closest('a,button'))return;next()});
+document.addEventListener('contextmenu',e=>{e.preventDefault();prev()});
+document.addEventListener('keydown',e=>{
+ if([' ','ArrowRight','Enter','PageDown','ArrowDown'].includes(e.key)){e.preventDefault();next()}
+ else if(['ArrowLeft','PageUp','ArrowUp','Backspace'].includes(e.key)){e.preventDefault();prev()}
+ else if(e.key==='Home'){si=0;st=0;apply()}
+ else if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}
+});
+function fit(){const g=document.getElementById('stage');const k=Math.min(innerWidth/1920,innerHeight/1080);g.style.transform=`translate(-50%,-50%) scale(${k})`;g.style.transformOrigin='center center'}
+addEventListener('resize',fit);fit();
+setTimeout(()=>document.getElementById('hint').classList.add('hide'),5000);
+let idle;addEventListener('mousemove',()=>{document.body.classList.remove('nocursor');clearTimeout(idle);idle=setTimeout(()=>document.body.classList.add('nocursor'),2000)});
+function fitChunks(){document.querySelectorAll('.chunks').forEach(c=>{c.style.removeProperty('--cw');const kids=[...c.children];const w=kids.reduce((a,e)=>a+e.getBoundingClientRect().width/ (document.getElementById('stage').getBoundingClientRect().width/1920),0)+24*(kids.length-1);if(w>1600){c.style.setProperty('--cw',Math.max(54,Math.floor(76*1600/w))+'px')}})}
+fitChunks();if(document.fonts)document.fonts.ready.then(fitChunks);
+apply();
+</script>
+</body>
+</html>
